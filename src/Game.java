@@ -1,23 +1,21 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 
 public class Game extends JPanel implements KeyListener, ActionListener, MouseWheelListener {
-    private int x, y;
-    private int dx, dy;
     private double cameraX, cameraY;
     private double zoomFactor = 1.0;
+    private Character character;
+    private Background background;
+    private Music music;
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        // You can leave this method empty if you don't want to use it
+    }
 
     public Game() {
         setPreferredSize(new Dimension(800, 600));
@@ -28,107 +26,44 @@ public class Game extends JPanel implements KeyListener, ActionListener, MouseWh
         timer.start();
         addMouseWheelListener(this);
 
-        // Load the background image
-        try {
-            backgroundImage = ImageIO.read(new File("src/resources/grassy_field_tile.png"));
-        } catch (IOException e) {
-            System.err.println("Error loading background image: " + e.getMessage());
-        }
-
-        // Set initial character position
-        x = (backgroundImage.getWidth() * 5) / 2;
-        y = (backgroundImage.getHeight() * 5) / 2;
-
-        // Load background music and loop it
-        try {
-            // background music clip
-            Clip bgMusic = AudioSystem.getClip();
-            AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File("src/resources/Nightfall Invasion.wav"));
-            bgMusic.open(inputStream);
-            bgMusic.loop(Clip.LOOP_CONTINUOUSLY);
-        } catch (IOException | UnsupportedAudioFileException | LineUnavailableException e) {
-            System.err.println("Error loading background music: " + e.getMessage());
-        }
+        background = new Background("src/resources/grassy_field_tile.png");
+        character = new Character((background.getImage().getWidth() * 5) / 2, (background.getImage().getHeight() * 5) / 2);
+        music = new Music("src/resources/Nightfall Invasion.wav");
+        music.loop();
     }
 
-    private BufferedImage backgroundImage;
-
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        // Update the camera position
-        cameraX = x - getWidth() / (2 * zoomFactor);
-        cameraY = y - getHeight() / (2 * zoomFactor);
-
-        // Apply zoom
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.scale(zoomFactor, zoomFactor);
-        //g2d.translate(-((int) cameraX), -((int) cameraY));
-
-        // Draw the background tileset
-        if (backgroundImage != null) {
-            int tileWidth = backgroundImage.getWidth();
-            int tileHeight = backgroundImage.getHeight();
-            int startX = (((int) cameraX) / tileWidth) * tileWidth;
-            int startY = (((int) cameraY) / tileHeight) * tileHeight;
-            for (int i = -tileWidth; i < getWidth() + tileWidth; i += tileWidth) {
-                for (int j = -tileHeight; j < getHeight() + tileHeight; j += tileHeight) {
-                    g.drawImage(backgroundImage, i + startX - ((int) cameraX), j + startY - ((int) cameraY), null);
-                }
-            }
-        }
-
-        // Draw the character
-        g.setColor(Color.RED);
-        g.fillRect(x - ((int) cameraX), y - ((int) cameraY), 50, 50);
-
-        // Reset the transformations
-        AffineTransform oldTransform = g2d.getTransform();
-        g2d.setTransform(oldTransform);
-    }
-
-    private int calculateMovementSpeed() {
-        return 5;
-    }
+    // ...
 
     public void moveCharacter() {
-        if (dx == 0 && dy == 0) {
-            return;
-        }
-        int movementSpeed = calculateMovementSpeed();
-        double length = Math.sqrt(dx * dx + dy * dy);
-        x += (int) (dx * movementSpeed / length);
-        y += (int) (dy * movementSpeed / length);
+        character.move();
         repaint();
     }
 
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
         if (keyCode == KeyEvent.VK_W) {
-            dy = -1;
+            character.setDy(-1);
         } else if (keyCode == KeyEvent.VK_S) {
-            dy = 1;
+            character.setDy(1);
         } else if (keyCode == KeyEvent.VK_A) {
-            dx = -1;
+            character.setDx(-1);
         } else if (keyCode == KeyEvent.VK_D) {
-            dx = 1;
+            character.setDx(1);
         }
     }
+
 
     public void keyReleased(KeyEvent e) {
         int keyCode = e.getKeyCode();
-        if (keyCode == KeyEvent.VK_W && dy == -1) {
-            dy = 0;
-        } else if (keyCode == KeyEvent.VK_S && dy == 1) {
-            dy = 0;
-        } else if (keyCode == KeyEvent.VK_A && dx == -1) {
-            dx = 0;
-        } else if (keyCode == KeyEvent.VK_D && dx == 1) {
-            dx = 0;
+        if (keyCode == KeyEvent.VK_W && character.getDy() == -1) {
+            character.setDy(0);
+        } else if (keyCode == KeyEvent.VK_S && character.getDy() == 1) {
+            character.setDy(0);
+        } else if (keyCode == KeyEvent.VK_A && character.getDx() == -1) {
+            character.setDx(0);
+        } else if (keyCode == KeyEvent.VK_D && character.getDx() == 1) {
+            character.setDx(0);
         }
-    }
-
-    public void keyTyped(KeyEvent e) {
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -158,9 +93,32 @@ public class Game extends JPanel implements KeyListener, ActionListener, MouseWh
                 zoomFactor = zoomAmount;
             }
         }
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+
+            AffineTransform oldTransform = g2d.getTransform();
+
+            g2d.scale(zoomFactor, zoomFactor);
+            g2d.translate(-cameraX, -cameraY);
+
+            // Draw the background
+            int imgWidth = background.getImage().getWidth();
+            int imgHeight = background.getImage().getHeight();
+            for (int x = 0; x < 5; x++) {
+                for (int y = 0; y < 5; y++) {
+                    g2d.drawImage(background.getImage(), x * imgWidth, y * imgHeight, null);
+                }
+            }
+
+            // Draw the character
+            g2d.setColor(Color.RED);
+            g2d.fillRect(character.getX(), character.getY(), 20, 20);
+
+            g2d.setTransform(oldTransform);
+        }
 
         repaint();
     }
-
 }
-
