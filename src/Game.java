@@ -1,19 +1,19 @@
 import Modules.Background;
 import Modules.Character;
 import Modules.Music;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 
 
 public class Game extends JPanel implements KeyListener, ActionListener, MouseWheelListener {
     private double cameraX, cameraY;
     private double zoomFactor = 1.0;
-    private Character character;
-    private Background background;
-    private Music music;
+    private final Character character;
+    private final Background background;
+    private final Music music;
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -33,8 +33,8 @@ public class Game extends JPanel implements KeyListener, ActionListener, MouseWh
 
         character = new Character(centerX - 10, centerY - 10, 5, "src/resources/KnightScaled.png"); // Subtract half of character size (20/2) to center it
 
-        cameraX = centerX - getWidth() / 2;
-        cameraY = centerY - getHeight() / 2;
+        cameraX = centerX - (double) getWidth() / 2;
+        cameraY = centerY - (double) getHeight() / 2;
 
         music = new Music("src/resources/Nightfall Invasion.wav");
         music.loop();
