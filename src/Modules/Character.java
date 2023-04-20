@@ -1,10 +1,33 @@
-public class Character {
-    private int x, y;
-    private int dx, dy;
+package Modules;
 
-    public Character(int x, int y) {
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+
+public class Character {
+    private int x;
+    private int y;
+    private int dx;
+    private int dy;
+    private int speed;
+    private BufferedImage image;
+
+    public Character(int x, int y, int speed, String imagePath) {
         this.x = x;
         this.y = y;
+        this.dx = 0;
+        this.dy = 0;
+        this.speed = speed;
+
+        try {
+            image = ImageIO.read(new File(imagePath));
+        } catch (IOException e) {
+            System.err.println("Error loading character image: " + e.getMessage());
+        }
+    }
+
+    public Character(int x, int y) {
     }
 
     public int getX() {
@@ -15,14 +38,6 @@ public class Character {
         return y;
     }
 
-    public int getDx() {
-        return dx;
-    }
-
-    public int getDy() {
-        return dy;
-    }
-
     public void setDx(int dx) {
         this.dx = dx;
     }
@@ -31,18 +46,22 @@ public class Character {
         this.dy = dy;
     }
 
-    public int calculateMovementSpeed() {
-        int movementSpeed = 5; // You can change this value or implement a different logic
-        return movementSpeed;
+    public int getDx() {
+        return dx;
+    }
+
+    public int getDy() {
+        return dy;
     }
 
     public void move() {
-        int movementSpeed = calculateMovementSpeed();
-        if (dx == 0 && dy == 0) {
-            return;
-        }
-        double length = Math.sqrt(dx * dx + dy * dy);
-        x += (int) (dx * movementSpeed / length);
-        y += (int) (dy * movementSpeed / length);
+        x += dx;
+        y += dy;
+    }
+    public int getSpeed() {
+        return speed;
+    }
+    public BufferedImage getImage() {
+        return image;
     }
 }
