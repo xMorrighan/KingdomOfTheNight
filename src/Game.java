@@ -1,7 +1,6 @@
 import Modules.Background;
 import Modules.Character;
 import Modules.Music;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -37,7 +36,8 @@ public class Game extends JPanel implements KeyListener, ActionListener, MouseWh
         cameraY = centerY - (double) getHeight() / 2;
 
         music = new Music("src/resources/Nightfall Invasion.wav");
-        music.loop();
+        // Comment or remove the following line to prevent the music from looping
+        // music.loop();
 
         Timer timer = new Timer(1000 / 60, this);
         timer.start();
@@ -87,7 +87,7 @@ public class Game extends JPanel implements KeyListener, ActionListener, MouseWh
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Game");
+        JFrame frame = new JFrame("Kingdom of the Night");
         Game game = new Game();
         frame.add(game);
         frame.pack();
@@ -109,7 +109,9 @@ public class Game extends JPanel implements KeyListener, ActionListener, MouseWh
                 zoomFactor = zoomAmount;
             }
         }
-    } // Closing brace should be here
+    }
+
+
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -124,16 +126,23 @@ public class Game extends JPanel implements KeyListener, ActionListener, MouseWh
         // Draw the background
         int imgWidth = background.getImage().getWidth();
         int imgHeight = background.getImage().getHeight();
-        for (int x = 0; x < 5; x++) {
-            for (int y = 0; y < 5; y++) {
-                g2d.drawImage(background.getImage(), x * imgWidth, y * imgHeight, null);
+        int startX = (int) Math.floor(cameraX / imgWidth) * imgWidth;
+        int startY = (int) Math.floor(cameraY / imgHeight) * imgHeight;
+        int numTilesX = (int) Math.ceil(getWidth() / (double) imgWidth / zoomFactor) + 1;
+        int numTilesY = (int) Math.ceil(getHeight() / (double) imgHeight / zoomFactor) + 1;
+        for (int x = 0; x < numTilesX; x++) {
+            for (int y = 0; y < numTilesY; y++) {
+                g2d.drawImage(background.getImage(), startX + x * imgWidth, startY + y * imgHeight, null);
             }
         }
 
         // Draw the character
-        g2d.drawImage(character.getImage(), character.getX(), character.getY(), null);
+        int charWidth = character.getImage().getWidth();
+        int charHeight = character.getImage().getHeight();
+        g2d.drawImage(character.getImage(), character.getX() - charWidth / 2, character.getY() - charHeight / 2, null);
 
         g2d.setTransform(oldTransform);
     }
+
 
 }
