@@ -40,7 +40,8 @@
             cameraX = centerX - (double) getWidth() / 2;
             cameraY = centerY - (double) getHeight() / 2;
 
-            music = new Music("src/resources/Nightfall Invasion.wav");
+            music = new Music("src/resources/Nightfall_Invasion.wav");
+            music.loop(); // Start playing the music
 
             goblins = new ArrayList<>();
 
