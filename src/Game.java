@@ -38,6 +38,7 @@
             int centerX = (background.getImage().getWidth() * 5) / 2;
             int centerY = (background.getImage().getHeight() * 5) / 2;
 
+            keep = new Keep(centerX - 1000, centerY - 1000, "src/resources/Structures/KeepScaled.png");
             character = new Character(centerX - 10, centerY - 10, 5, "src/resources/KnightScaled.png");
 
             cameraX = centerX - (double) getWidth() / 2;
@@ -56,18 +57,15 @@
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     spawnGoblin();
-                    int delay = 3000 + new Random().nextInt(7000);
-                    goblinSpawner.setInitialDelay(delay);
-                    goblinSpawner.restart();
+
+                    for (Goblin goblin : goblins) {
+                        goblin.moveTowards(keep.getX(), keep.getY());
+                    }
                 }
             });
-            goblinSpawner.setRepeats(true); // Change this line
+            goblinSpawner.setRepeats(true);
             goblinSpawner.start();
-
-            keep = new Keep(centerX - 100, centerY - 100, "src/resources/Structures/KeepScaled.png");
-
         }
-
 
 
         private void updateCamera() {
@@ -77,9 +75,19 @@
 
 
         public void moveCharacter() {
+            int oldX = character.getX();
+            int oldY = character.getY();
+
             character.move();
+
+            if (characterKeepCollision()) {
+                character.setX(oldX);
+                character.setY(oldY);
+            }
+
             repaint();
         }
+
 
         public void keyPressed(KeyEvent e) {
             int keyCode = e.getKeyCode();
@@ -111,7 +119,16 @@
         public void actionPerformed(ActionEvent e) {
             moveCharacter();
             updateCamera();
+
+            if (e.getSource() == goblinSpawner) {
+                spawnGoblin();
+
+                for (Goblin goblin : goblins) {
+                    goblin.moveTowards(keep.getX(), keep.getY());
+                }
+            }
         }
+
 
         public static void main(String[] args) {
             JFrame frame = new JFrame("Kingdom of the Night");
@@ -186,20 +203,47 @@
 
         private void spawnGoblin() {
             Random random = new Random();
-            int minDistance = 200;
-            int maxDistance = 500;
+            int minDistance = 2000;
+            int maxDistance = 5000;
+            int maxAttempts = 10; // Limit the number of attempts to find a valid position
 
-            int distanceX = minDistance + random.nextInt(maxDistance - minDistance);
-            int distanceY = minDistance + random.nextInt(maxDistance - minDistance);
+            Goblin goblin = null;
 
-            distanceX = random.nextBoolean() ? distanceX : -distanceX;
-            distanceY = random.nextBoolean() ? distanceY : -distanceY;
+            for (int attempt = 0; attempt < maxAttempts; attempt++) {
+                int distanceX = minDistance + random.nextInt(maxDistance - minDistance);
+                int distanceY = minDistance + random.nextInt(maxDistance - minDistance);
 
-            int x = character.getX() + distanceX;
-            int y = character.getY() + distanceY;
+                distanceX = random.nextBoolean() ? distanceX : -distanceX;
+                distanceY = random.nextBoolean() ? distanceY : -distanceY;
 
-            Goblin goblin = new Goblin(x, y, 3, "src/resources/GoblinScaled.png");
-            goblins.add(goblin);
+                int x = keep.getX() + distanceX;
+                int y = keep.getY() + distanceY;
+
+                goblin = new Goblin(x, y, 10, "src/resources/GoblinScaled.png");
+
+                if (goblinWithinRange(goblin, minDistance, maxDistance)) {
+                    break;
+                }
+            }
+
+            if (goblin != null && goblinWithinRange(goblin, minDistance, maxDistance)) {
+                goblins.add(goblin);
+            }
+        }
+
+        public boolean goblinWithinRange(Goblin goblin, int minDistance, int maxDistance) {
+            int dx = goblin.getX() - keep.getX();
+            int dy = goblin.getY() - keep.getY();
+            double distance = Math.sqrt(dx * dx + dy * dy);
+
+            return distance >= minDistance && distance <= maxDistance;
+        }
+
+        public boolean characterKeepCollision() {
+            return character.getBounds().intersects(keep.getBounds());
+        }
+        public boolean goblinKeepCollision(Goblin goblin) {
+            return goblin.getBounds().intersects(keep.getBounds());
         }
 
 

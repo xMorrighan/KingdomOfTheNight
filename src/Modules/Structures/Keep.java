@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-
+import java.awt.Rectangle;
 public class Keep {
     private int x;
     private int y;
@@ -32,5 +32,9 @@ public class Keep {
 
     public BufferedImage getImage() {
         return image;
+    }
+
+    public Rectangle getBounds() {
+        return new Rectangle(x - image.getWidth() / 2, y - image.getHeight() / 2, image.getWidth(), image.getHeight());
     }
 }

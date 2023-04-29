@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-
+import java.awt.Rectangle;
 public class Character {
     private int x;
     private int y;
@@ -28,6 +28,7 @@ public class Character {
     }
 
     public Character(int x, int y) {
+        this(x, y, 0, ""); // Provide default values
     }
 
     public int getX() {
@@ -63,5 +64,15 @@ public class Character {
     }
     public BufferedImage getImage() {
         return image;
+    }
+    public Rectangle getBounds() {
+        return new Rectangle(x - image.getWidth() / 2, y - image.getHeight() / 2, image.getWidth(), image.getHeight());
+    }
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 }
