@@ -23,5 +23,16 @@ public class Goblin extends Character {
         setX(getX() + (int) (normalizedDx * getSpeed()));
         setY(getY() + (int) (normalizedDy * getSpeed()));
     }
+    public void knockback(int distance, int targetX, int targetY) {
+        int dx = getX() - targetX;
+        int dy = getY() - targetY;
+
+        double len = Math.sqrt(dx * dx + dy * dy);
+        double normalizedDx = dx / len;
+        double normalizedDy = dy / len;
+
+        setX(getX() + (int) (normalizedDx * distance));
+        setY(getY() + (int) (normalizedDy * distance));
+    }
 
 }

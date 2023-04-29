@@ -9,6 +9,7 @@
     import java.util.ArrayList;
     import java.util.Random;
     import Modules.Structures.Keep;
+    import java.util.Iterator;
 
     public class Game extends JPanel implements KeyListener, ActionListener, MouseWheelListener {
         private double cameraX, cameraY;
@@ -34,7 +35,7 @@
             setDoubleBuffered(true);
             addMouseWheelListener(this);
 
-            background = new Background("src/resources/grassy_field_tile.png");
+            background = new Background("src/resources/grassy_field_tile_2a.png");
             int centerX = (background.getImage().getWidth() * 5) / 2;
             int centerY = (background.getImage().getHeight() * 5) / 2;
 
@@ -122,12 +123,28 @@
 
             if (e.getSource() == goblinSpawner) {
                 spawnGoblin();
+            }
 
-                for (Goblin goblin : goblins) {
-                    goblin.moveTowards(keep.getX(), keep.getY());
+            Iterator<Goblin> goblinIterator = goblins.iterator();
+            while (goblinIterator.hasNext()) {
+                Goblin goblin = goblinIterator.next();
+                goblin.moveTowards(keep.getX(), keep.getY());
+
+                // Check for goblin collision with the character
+                if (goblin.getBounds().intersects(character.getBounds())) {
+                    int knockbackDistance = 50;
+                    goblin.knockback(knockbackDistance, character.getX(), character.getY());
+                    character.knockback(knockbackDistance, goblin.getX(), goblin.getY());
+                }
+
+                // Check for collision between goblin and keep
+                if (goblin.getBounds().intersects(keep.getBounds())) {
+                    int knockbackDistance = 50;
+                    goblin.knockback(knockbackDistance, keep.getX(), keep.getY());
                 }
             }
         }
+
 
 
         public static void main(String[] args) {
@@ -219,7 +236,7 @@
                 int x = keep.getX() + distanceX;
                 int y = keep.getY() + distanceY;
 
-                goblin = new Goblin(x, y, 10, "src/resources/GoblinScaled.png");
+                goblin = new Goblin(x, y, 3, "src/resources/GoblinScaled.png");
 
                 if (goblinWithinRange(goblin, minDistance, maxDistance)) {
                     break;

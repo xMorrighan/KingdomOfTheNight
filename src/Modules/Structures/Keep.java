@@ -35,6 +35,13 @@ public class Keep {
     }
 
     public Rectangle getBounds() {
-        return new Rectangle(x - image.getWidth() / 2, y - image.getHeight() / 2, image.getWidth(), image.getHeight());
+        int smallerWidth = (int) (image.getWidth() * 0.8); // 80% of the original width
+        int smallerHeight = (int) (image.getHeight() * 0.8); // 80% of the original height
+
+        int newX = x - smallerWidth / 2;
+        int newY = y - smallerHeight / 2;
+
+        return new Rectangle(newX, newY, smallerWidth, smallerHeight);
     }
+
 }
