@@ -8,6 +8,7 @@
     import Modules.Goblin;
     import java.util.ArrayList;
     import java.util.Random;
+    import Modules.Structures.Keep;
 
     public class Game extends JPanel implements KeyListener, ActionListener, MouseWheelListener {
         private double cameraX, cameraY;
@@ -16,6 +17,8 @@
         private final Background background;
         private final Music music;
         private final ArrayList<Goblin> goblins;
+        private final Keep keep;
+
         @Override
         public void keyTyped(KeyEvent e) {
             // You can leave this method empty if you don't want to use it
@@ -60,6 +63,9 @@
             });
             goblinSpawner.setRepeats(true); // Change this line
             goblinSpawner.start();
+
+            keep = new Keep(centerX - 100, centerY - 100, "src/resources/Structures/KeepScaled.png");
+
         }
 
 
@@ -157,9 +163,15 @@
                 }
             }
 
+            // Draw the Character?
             int charWidth = character.getImage().getWidth();
             int charHeight = character.getImage().getHeight();
             g2d.drawImage(character.getImage(), character.getX() - charWidth / 2, character.getY() - charHeight / 2, null);
+
+            // Draw the Keep
+            int keepWidth = keep.getImage().getWidth();
+            int keepHeight = keep.getImage().getHeight();
+            g2d.drawImage(keep.getImage(), keep.getX() - keepWidth / 2, keep.getY() - keepHeight / 2, null);
 
             // Draw the goblins
             for (Goblin goblin : goblins) {
